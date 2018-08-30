@@ -1,0 +1,16 @@
+\subsubsection* {Punto a}
+Las 3 entradas que se requieren agregar, son agregadas en el archivo idt.c. Para esto copiamos la definición de la macro 'IDT\_ENTRY', utilizada en el ejercicio 2. Para las interrupciones de reloj y teclado, no se modificó nada más que el campo $offset$ al copiar la macro, para apunten a las rutinas correspondientes. En cambio para la rutina '0x45' también se modificó el campo $attr$, bajando el RPL a nivel 3 (Usuario) para que esta interrupción pueda ser invocada por tareas que corran en dicho nivel.
+
+\subsubsection* {Punto b}
+La rutina asociada a la interruoción de reloj se definió en el archivo isr.asm. La misma se llama 'reloj'. Ahí se encuentra comentado el código, tal cual se implementó al momento de realizar este ejercicio. Lo único que hacía era llamar a la función provista por la cátedra, que actualizaba el reloj en la esquina inferior derecha de la pantalla.
+
+
+\subsubsection* {Punto c}
+La rutina del teclado, se encuentra en el mismo archivo, y se llama 'teclado'. La misma, además de cumplir con lo pedido del ejercicio, resuelve el requerimiento de botón Pausa, Restore, y un agregado nuestro, 'Step By Step'. \\
+
+En la rutina, se le notifica al pic que ya atendimos la interrupción, se lee el puerto 0x60 para obtener el makecode de la tecla presionada, y luego se comineza a identificar que tecla fue la presionada. En caso de haber sido 'P' seteamos la variable global 'pause', definida en 'sched.c', en 1. Si fue 'R' volvemos la variable 'pause' a 0, y si fue 'S', seteamos la variable 'step\_by\_step' en 1. El comportamiento que activa al estar activado el modo 'step by step' es que, se ejecutará una tarea solamente, y luego se volverá a la tarea IDLE, como si se estuviese en modo Pausa.\\
+
+Finalmente, si la tecla presionada fue un número, se le suma $0x2F$ al makecode para convertirlo a ASCII. Se le suma a la variable 'aleatorio' lo obtenido, para generar un formato cualquiera. Al formato se lo manipula para forzar que el color de letra sea blanca, y no titile. Por último se mueve el codigo ASCII y el formato a la última posición de la primer fila de la pantalla.
+
+\subsubsection* {Punto d}
+La rutina de la interrupción 0x45 se llama 'serviciosOS'. El código correspondiente a este ejercicio se encuentra comentado. Solo avisaba al pic que se atendió la interrupción y seteaba eax en 42.

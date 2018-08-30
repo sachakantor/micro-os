@@ -1,0 +1,12 @@
+Lo que ocurre varía según cual sea el segmento no seteado:
+	fs (Video): Al intentar utilizarlo, cuando pintamos la primer y ultima línea de la pantalla de blanco, y se lanza la excepción 'INT 9: Coprocessor Segment Overrun (reserved)', por lo que no se pinta nada en la pantalla de esta forma.
+	
+	ss (Stack): Al llamar a la funcion inicializar\_dir\_kernel se lanza la excepción 'INT 12: Stack Segment Fault'
+	
+	gs,es : Podria no setearse. Se lanzan las mismas excepciones que cuando estan seteados. 
+	
+	ds: Se lanza la expceción 'INT 13: General Protection Interruption' al llamar a inicializar\_dir\_kernel.
+	
+Nota, pusimos la intruccion sti antes de pintar la pantalla para detectar que excepciones se lanzaban, pero en realidad el primer sti esta luego de resetear el pic, por lo que estas excepciones no se capturan. 
+	
+Concluyendo, podrian no setearse los registros gs y es. Esto no causa problema porque ninguna instrucción asume como segmento al seleccionado por alguno de estos 2 registros, a diferencia de esto, por ejemplo la instrucción 'mov' toma como predeterminado el DS.

@@ -1,0 +1,17 @@
+; ** por compatibilidad se omiten tildes **
+; ==============================================================================
+; TRABAJO PRACTICO 3 - System Programming - ORGANIZACION DE COMPUTADOR II - FCEN
+; ==============================================================================
+;SELECTORES DE DESCRIPTORES DE LA GDT
+%define TAREA_1         0xB     ;indice 1 con permisos de usuario
+%define TAREA_2         0x13    ;indice 2 con permisos de usuario
+%define TAREA_3         0x1B    ;indice 3 con permisos de usuario
+%define TAREA_4         0x23    ;indice 4 con permisos de usuario
+%define TAREA_5         0x2B    ;indice 5 con permisos de usuario
+%define TAREA_INICIAL   0x30    ;indice 6 con permisos de supervisor
+%define TAREA_IDLE      0x38    ;indice 7 con permisos de supervisor
+%define CODIGO_0        1010000b;indice 10 con permisos de supervisor
+%define DATOS_0         1011000b;indice 11 con permisos de supervisor
+%define CODIGO_3        1100011b;indice 12 con permisos de usuario
+%define DATOS_3         1101011b;indice 13 con permisos de usuario
+%define VIDEO_0         1110000b;indice 14 con permisos de supervisor

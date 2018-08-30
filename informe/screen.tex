@@ -1,0 +1,74 @@
+Para mantener todas las funciones de manera más estructurada, lo primero que hicimos fue definir variables de precompilación que almacenen los colores de los fondos y letras de cada sector de la pantalla, así como de las tareas.\\
+
+\subsection{pintar\_pantalla}
+El comportamiento de esta función es, básicamente, inicializar las distintas areas de la memoria de video para que se muestre el mapa en la pantalla.\\
+Describiendo en más detalle, lo que se hace es:
+\begin{itemize}
+ \item Pintamos la primera fila y colocamos el nombre del equipo en la esquina superior izquierda.
+ \item Pintamos el fondo desde la segunda fila hasta que comienza el buffer de estados de las tareas.
+ \item Mostramos los números horizontales y verticales de la arena.
+ \item Colocamos los cuadrados negros de la arena, en dónde se van a mostrar las distintas partes de las tareas.
+ \item Pintamos el fondo del header del último problema, sin ningún título.
+ \item Pintamos el fondo del área dónde se va a mostrar el estado de ejecución del último problema.
+ \item Mostramos los nombres de los registros del estado del último problema.
+ \item Pintamos el fondo de los headers de las filas del buffer de estados de las tareas con sus respectivos colores.
+ \item Pintamos el fondo del buffer de estados de las tareas.
+ \item Pintamos la última fila de negro.
+\end{itemize}
+
+\subsection{pintar\_excepciones}
+Esta función se encarga de mostrar el estado de ejecución del momento en el cuál se produjo una excepción.\\
+\\
+Como primer parámetro recibimos un puntero al primer caracter del mensaje de excepción que ocurrió. Utilizandoló se muestra en el header del 
+área del último problema el mensaje de excepción arrojado y también se muestra en el buffer de estados de la tarea correspondiente.
+Cabe aclarar que previo a mostrarlo en el header del último problema, se vacía el mismo, por si llegara a suceder que el error anterior fuese más largo.\\
+\\
+Como segundo parámetro toma el valor del registro esp luego de haber hecho pushad.
+Por lo tanto, la pila a partir de la posición que recibe como parámetro, debe estar compuesta de la siguiente manera:\\
+\begin{center}
+  \begin{tabular*}{200mm}{l|c|}
+  & \rule[0.25cm]{80mm}{0.01cm}\\
+  esp & EDI\\
+  esp + 4 & ESI\\
+  esp + 8 & EBP\\
+  esp + 12 & ESP(Previo al pushad)\\
+  esp + 16 & EBX\\
+  esp + 20 & EDX\\
+  esp + 24 & ECX\\
+  esp + 28 & EAX\\
+  esp + 32 & ERRORCODE\\
+  esp + 36 & EIP(Previo a la interrupción)\\
+  esp + 40 & CS\\
+  esp + 44 & EFLAGS\\
+  esp + 48 & ESP(Previo a la interrupción)\\
+  esp + 52 & SS\\
+  esp + 56 & Dirección de retorno de la interrupción\\
+  & \rule[-0.2cm]{80mm}{0.01cm}\\
+  \end{tabular*}
+\end{center}
+
+Sabiendo que la pila está conformada como se describió previamente, accedemos al estado de cada registro y a los valores del stack y 
+flags y los mostramos en formato hexadecimal en su lugar correspondiente en el área del último problema.\\
+Un último detalle que cabe remarcar es que como los registros de segmento (ds, es, fs, gs) no se guardan en la pila, utliziamos assembler-inline 
+para obtener el valor de los mismos. Esto lo podemos hacer ya que utilizamos segmentos flat y en todo el tiempo de ejecución no cambian.
+
+\subsection{pintar\_posicion\_arena}
+Lo que hacemos con esta función es actualizar la arena mostrada en pantalla, ya sea mostrando o borrando una página de código, de pila o compartida 
+de la tarea que se está ejecutando (índice almacenado en la variable global tarea\_actual).\\
+\\
+Recibimos dos parámetros, un caracter y el índice (de 0 a 99) de la arena que debe modificarse.\\
+Primero se calcula la fila y la columna del área de video del cuadrado correspondiente al índice recibido.
+Notemos que la columna depende de si es una página compartida o es de código o pila, ya que si es compartida va en el cuadrado derecho y sino en el izquierdo.
+A esta altura tomamos como columna la del cuadrado izquierdo.\\
+\\
+Según el caracter recibido por parámetro varía el comportamiento de nuestra función.\\
+Si recibimos un caracter 'P' o 'C', simplemente se muestra en la posición ya calculada de la memoria de video un cuadrado con el color de la tarea a actualizar
+con la letra recibida.\\
+Si se recibe un caracter ' ', se muestra en la siguiente columna calculada de la memoria de video, un cuadrado con el color de la tarea actual, para mostrar
+que se compartió esa página.\\
+Si el caracter es 'X' lo que se hace es borrar (pintar del color de fondo nuevamente) el cuadrado que se calculó previamente de la memoria de video.\\
+Por último si el caracter es 'S' y el cuadrado a la derecha del calculado tiene el color de fondo de la tarea actual borramos esa posción de la memoria de video (repintamos el color de fondo al incial).
+
+\subsection{actualizar\_reloj\_tareas}
+La idea de esta función es mover la manilla del reloj de la tarea actual a la siguiente posición.\\
+Para esto, nos creamos un arreglo global que contiene la posición actual de la manilla de cada tarea. Lo que hacemos entonces es simplemente sumar 1 a ese arreglo y mostrar el caracter de reloj correspondiente a ese número de manera similar a lo hecho con el reloj de la tarea idle.

@@ -1,0 +1,10 @@
+Las excepciones son interrupciones que genera el procesador cuando algo no funciona como es debido. Por esto mismo, la respuesta a esta pregunta es, básicamente, mencionar tres problemas que pueden llegar a ocurrir a lo largo de la ejecución de un programa.
+
+\begin{itemize}
+	\item La primera manera elegida para generar una interrupción es una división por cero. Como dividir por cero no es una operación válida, el procesador lo detecta e inmediatamente arroja una excepción de tipo 0 (Divide error).
+		
+	\item Otra manera de producir una excepción es por ejemplo intentar escribir una página que tiene permisos únicamente de lectura (en el flag r/w de su entrada en la tabla de páginas). Esto arroja una excepción de tipo 14 (Page fault).
+
+	\item Utilizando un selector de segmento, intentar acceder a un espacio de memoria fuera del límite de dicho límite. (como en el ejercicio 1).
+
+\end{itemize}

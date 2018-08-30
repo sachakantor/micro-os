@@ -1,0 +1,72 @@
+El desarrollo de un kernel que permita el funcionamiento correcto de una computadora no es una tarea fácil. El mismo es dependiente de la arquitectura que se esté utilizando y por esta razón implica un trabajo a muy bajo nivel.\\
+
+La idea de este proyecto es la elaboración de un kernel (básico) que solucione los sigiuentes aspectos:
+\begin{itemize}
+	\item Administrar segmentos de datos y código.
+	\item Administrar la memoria principal utilizando el mecanismo de paginación.
+	\item Capturar cualquier tipo de excepción que pueda generar un programa.
+	\item Permitir la ejecución de programas en dos niveles (Usuario y Supervisor).
+\end{itemize}
+
+A lo largo de este TP, hicimos cambios en los archivos y tomamos decisiones sobre como configurar las distintas estructuras de datos que usa la arquitectura de intel para el manejo de memoria (segmentación y paginación) y tareas (\textit{tss}).\\
+
+A continuación daremos un resúmen de esas desiciones y cambios.
+
+\subsection{Archivos nuevos y modificados}
+\begin{itemize}
+	\item \textit{defines.h}: Se modificaron los defines de las pilas para que apunten a la base en lugar e al tope.\\
+		Se agregó el define TAM\_TSSS para usar en el \textit{array} de tareas (ya que decidimos incluir a la tarea idle e inicial en él).\\
+		Definimos variables de precompilación para los selectores de descriptores de segmento y de tareas.
+	\item \textit{macrosmodoprotegido.mac}: Cambiamos unas etiquetas ya que entraban en conflicto con etiquetas de \textit{macrosmodoreal.mac} si se incluían ambos archivos en el \textit{kernel.asm}.
+	\item \textit{mensajesInt.mac}: Son los mensajes de interrupción que luego usará \textit{isr.asm}.
+	\item \textit{selectores.mac}: Son los mismos selectores definidos en el \textit{defines.h} pero para nasm.
+	\item \textit{paginación.h/.c}: Son las estructuras que usamos para configurar el directorio y tablas de páginas del \textit{kernel}, y que son usadas por la MMU para configurar el de las tareas. También provee una función para el directorio y tablas de páginas del \textit{kernel}.
+	\item \textit{tss.h/c}: Aquí solo decidimos incluir las \textit{TSS} de las tareas inicial e idle en el \textit{array} global \textit{tsss[]}
+	\item \textit{*.hpp}: Archivos provistos para poder "hacer un loop" de una invocación a una macro. Ver la sección "Macro Vudú" para más información.
+\end{itemize}
+
+\subsection{GDT}
+Nuestra GDT se ordena de la siguiente manera:\\
+
+\begin{tabular}{|l|l|l|l|l|}
+	\hline
+	Tipo & Descripción  & Índice & Nivel& Índice+RTL (Selector) \\ \hline
+	Nulo & N/A          & 0      & N/A  & N/A  \\ \hline
+	TSS  & Tarea 1      & 1      & 3    & 0xB  \\ \hline
+	TSS  & Tarea 2      & 2      & 3    & 0x13 \\ \hline
+	TSS  & Tarea 3      & 3      & 3    & 0x1B \\ \hline
+	TSS  & Tarea 4      & 4      & 3    & 0x23 \\ \hline
+	TSS  & Tarea 5      & 5      & 3    & 0x2B \\ \hline
+	TSS  & Tarea Inicial& 6      & 0    & 0x30 \\ \hline
+	TSS  & Tarea Idle   & 7      & 0    & 0x38 \\ \hline
+	Nulo & N/A          & 8      & N/A  & N/A\\ \hline
+	Nulo & N/A          & 9      & N/A  & N/A\\ \hline
+	GDT  & Codigo       & 10     & 0    & 0x50 \\ \hline
+	GDT  & Datos        & 11     & 0    & 0x58 \\ \hline
+	GDT  & Codigo       & 12     & 3    & 0x63 \\ \hline
+	GDT  & Datos        & 13     & 3    & 0x6B \\ \hline
+	GDT  & Video        & 14     & 0    & 0x70 \\ \hline
+\end{tabular}
+
+\subsection{TSS}
+Nuestro \textit{array tsss[]} que contiene las \textit{TSS} de todas las tareas se describe en la siguiente tabla:\\
+
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|}
+	\hline
+	Indice & Tarea  & SS0:ESP0 & CR3     & EIP      & SS:ESP        & CS   & ES/DS/GS & FS \\ \hline
+	0      & 1      & 0x58:STT1& 0x30000 & 0x3A0000 & 0x6B:0x3B1000 & 0x63 & 0x6B     & 0x6B\\ \hline
+	1      & 2      & 0x58:STT2& 0x31000 & 0x3A0000 & 0x6B:0x3B1000 & 0x63 & 0x6B     & 0x6B\\ \hline
+	2      & 3      & 0x58:STT3& 0x32000 & 0x3A0000 & 0x6B:0x3B1000 & 0x63 & 0x6B     & 0x6B\\ \hline
+	3      & 4      & 0x58:STT4& 0x33000 & 0x3A0000 & 0x6B:0x3B1000 & 0x63 & 0x6B     & 0x6B\\ \hline
+	4      & 5      & 0x58:STT5& 0x34000 & 0x3A0000 & 0x6B:0x3B1000 & 0x63 & 0x6B     & 0x6B\\ \hline
+	5      & Inicial& N/A      & N/A     & N/A      & N/A           & N/A  & N/A      & N/A\\ \hline
+	6      & Idle   & N/A      & 0x21000 & 0x3A0000 & 0x58:0x40000  & 0x50 & 0x58     & 0x70\\ \hline
+\end{tabular}
+\\
+La tarea Inicial no requiere de datos pues solo se usa para tener algún lugar donde guardar el contexto a cambiar a la tarea idle. Luego de eso, el contexto inicial nunca más se volverá a usar.\\
+
+\subsection{Macro Vudu}
+En los archivos \textit{isr.h} e \textit{idt.c} se puede observar la utilización de la macro \textit{BOOST\_PP\_REPEAT}, la misma está provista por una suite de archivos que bajamos de internet (en el codigo se cita a la fuente) que nos permite ahorranos invocar a una misma macro muchas veces con distintos parametros (de alguna manera, simula un \textit{loop} a nivel de macros de C).
+
+\subsection{Funcionalidad Task-by-Task}
+En el marco del TP, y por motivos de comodidad a la hora de las pruebas, decidimos agregar una nueva funcionalidad al teclado. Cuando el combate entre tareas se encuentra pausad, es posible presionar la tecla 's' para ejecutar la siguiente tarea por 1 solo tick. Presionar la 's' cuando el combante no se encuentra pausado no tiene ningún efecto (salvo la atención de interrupción del teclado).

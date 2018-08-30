@@ -1,0 +1,38 @@
+Lo que hicimos para resolver el problema planteado por este ejercicio fue una función en C llamada \textit{inicializar\_dir\_kernel} en el archivo \textit{paginacion.c}.\\
+
+Previo a comenzar, creamos una función llamada \textit{set\_dir\_entry} que recibe los parámetros que han de setearse en una dir\_entry, un puntero a la posición dónde comienza el directorio y el índice de la entrada que debe crear la entrada y en base a esto la construye.\\
+Análogamente, creamos otra función llamada \textit{set\_tbl\_entry} que recibe los parámetros que pueden setearse en una table\_entry, un puntero a la base de la tabla y el índice de la entrada que se quiere crear y también la construye.\\
+
+Lo primero que hacemos para inicializar la paginación del kernel es posicionar un puntero en la posición 0x21000 para comenzar a escribir la primera entrada de su directorio. Luego la creamos utilizando la función \textit{set\_dir\_entry} de la siguiente manera:\\
+\\\
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+	\hline
+	Base & Disponible & G & PS & 0 & A & PCD & PWT & U/S & R/W & P\\
+	\hline
+	0x22 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1\\
+	\hline
+\end{tabular}
+\\ \\\
+Analizando un poco, la base está en 0x22 ya que debe describir la base de la tabla de páginas del kernel y como el sistema de paginación asume que esta alineada a 4K la convierte en la dirección 0x22000 que efectivamente es lo que queríamos. \\
+El bit U/S está en 0 ya que queremos que el kernel tenga privilegios de sistema para poder acceder a los primeros dos MB, tambien queremos que pueda leer y escribir cualquier posición (R/W = 1) y aclarar que la tabla de páginas está presente en la memoria (P = 1).\\
+\\\
+Ya habiendo seteado la primera entrada del directorio del kernel (la única que vamos a utilizar), ponemos las demás entradas del directorio en 0 (para que P = 0) y las ignore.\\
+Lo que sigue es consturir la tabla de páginas del kernel, para esto se nos pidió hacer identity mapping sobre los primeros 2MB. Esto quiere decir mapear las primeras 512 entradas de la tabla a las primeras 512 páginas de la memoria (512 páginas * 4KB = 2MB). El resto de la memoria lo dejamos en no presente.\\
+Para esto, utilizando \textit{set\_tbl\_entry}, creamos las primeras 512 entradas de la siguiente manera:\\
+\\\
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+	\hline
+	Base & Disponible & G & PAT & D & A & PCD & PWT & U/S & R/W & P\\
+	\hline
+	i & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1\\
+	\hline
+\end{tabular}
+\\ \\\
+Esto lo hacemos ya que para hacer identity mapping, la primera entrada va a tener un 0 en la base, y va a apuntar a la dirección 0 de la memoria, que es la base de la primera página. La segunda entrada va a tener un 1 y como la unidad de paginación asume que las páginas son de 4KB entonces la dirección base que queda es 0x1000 que es justamente la dirección de la página 2 de la memoria y así sucesivamente.\\
+Por otro lado el kernel tiene que poder leer y escribir (R/W = 1) y acceder con privilegios de sistema (U/S = 0).\\
+El resto de las entradas las ponemos en 0 (en particular P = 0), ya que no queremos direccionar más allá de 2MB.\\\
+\\
+Por último en esta función mapeamos la dirección virtual 0x3A0000 a la 0x10000 que es dónde va a estar el código de la tarea idle, para que este pueda ejecutarse asumiendo que esa es su posición en memoria (recordemos que la tarea idle usa el directorio de páginas del kernel).\\
+\\\
+Para habilitar paginación simplemente hay que poner el bit mas significativo del CR0 en 1, lo cuál hicimos desde assembler con la instrucción OR.\\\
+Nota: No fue necesario hacer un tlbflush() luego de completar el mapeo de páginas del kernel porque todavía no estaba activada la paginación.

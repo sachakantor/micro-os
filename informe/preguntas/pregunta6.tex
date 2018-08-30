@@ -1,0 +1,6 @@
+Cuándo estás ejecutando código a nivel usuario, tu nivel de privilegio es 3 (usuario). Las entradas de las tablas de páginas que apuntan a una página del kernel tienen seteado el bit de \textbf{U/S} en 0.\\
+
+Al intentar acceder a esta página, se produce una comprobación en la cuál el procesador evalúa si el nivel con el que se está ejecutando el código es superior o igual al nivel de la página a la que se desea acceder.\\
+En este caso, el código se está ejecutando en nivel \textbf{U(3)} y la página requiere un nivel \textbf{S(0)} para ser accedida, lo que causa una excepción cuando el usuario intenta acceder a la misma.\\
+
+Dicho esto, concluímos que un usuario con nivel de privilegio \textbf{U(3)} no puede acceder a ninguna página del kernel.

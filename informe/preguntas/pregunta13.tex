@@ -1,0 +1,2 @@
+Se puede verificar que la tarea se cargó, poniendo un breakpoint en la interrupción de reloj, y ejecutando 'info tss' una vez que se entró a dicha interrupción. Para confirmar que la tarea es la que nosotros queremos, se puede verificar el 'eip', 'cr3', 'tr', 'base' devueltos por la instrucción. 
+Esto es valido porque al cargarse una tarea, el procesador levanta el contexto de la misma. Esto significa que pasa toda la información almacenada en la tss a los registros de contexto corresponientes, como ser los registros de propocito general, los de segmento, etc.

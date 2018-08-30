@@ -1,0 +1,93 @@
+\documentclass[10pt, a4paper]{article}
+%Margenes de la pagina.  otra opcion, usar \usepackage{a4wide}
+\usepackage[paper=a4paper, left=1.5cm, right=1.5cm, bottom=1.5cm, top=3.5cm]{geometry}
+%este paquete permite incluir acentos.  Notar que espera un formato ANSI-blah de archivo.  Si en lugar de eso se tiene un utf8 (usual en los linux), entonces usar \usepackage[utf8]{inputenc}
+\usepackage[utf8]{inputenc} 
+%Este paquete es para que algunos titulos (como Tabla de Contenidos) esten en castellano
+\usepackage[spanish]{babel}
+%El siguiente paquete permite escribir la caratula facilmente
+\usepackage{caratula}
+%este paquete es innecesario para el TP, aca lo uso para recuadrar
+\usepackage{framed}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{listing}
+\usepackage{amsmath}
+\lstset{language=C++, breaklines=true, showstringspaces=false, mathescape=false, fontadjust, tabsize=4}
+\pagestyle{plain}
+\newcommand{\real}{\ensuremath{\mathbb{R}}}
+
+
+%Datos para la caratula
+\materia{Organización del Computador II}
+
+
+
+\titulo{Trabajo Práctico 3: 0x64\% LUCHA}
+
+
+\grupo{Grupo: Marley (Sin huevos)}
+\integrante{Gonzalo Lera Romero}{455/11}{gonzalo.lera.romero@gmail.com}
+\integrante{Victor Wjugow}{174/11}{victorwjugow@gmail.com}
+\integrante{Sacha Kantor}{009/11}{sachakantor@gmail.com}
+
+
+\begin{document}
+ 
+ %esto construye la caratula
+	\maketitle
+ 	\tableofcontents
+ 	\newpage
+ 	\section {Introducción}
+ 		%\begin{minipage}{\linewidth}
+			\input{introduccion} 		
+ 		%\end{minipage}
+	  	\pagebreak
+	\section {Screen}
+	    \input{screen}
+
+	\section {Desarrollo}
+	  	\subsection{Ejercicio 1}
+	  		\begin{minipage}{\linewidth}
+	  			\input{ejercicio1}
+	  		\end{minipage}
+	  	
+	  	\subsection{Ejercicio 2}
+	  		\begin{minipage}{\linewidth}
+	  			\input{ejercicio2}
+	  		\end{minipage}
+	  	
+	  	\subsection{Ejercicio 3}
+	  		\begin{minipage}{\linewidth}
+	  			\input{ejercicio3}
+	  		\end{minipage}
+	  	
+	  	\subsection{Ejercicio 4}
+	  		\begin{minipage}{\linewidth}
+	  			\input{ejercicio4}
+	  		\end{minipage}
+	  		
+	  	\subsection{Ejercicio 5}
+	  		\begin{minipage}{\linewidth}
+	  			\input{ejercicio5}
+	  		\end{minipage}
+	  	
+	  	\subsection{Ejercicio 6}
+	  		\begin{minipage}{\linewidth}
+	  			\input{ejercicio6}
+	  		\end{minipage}
+	  	
+	  	\pagebreak
+	  	\subsection{Ejercicio 7}
+	  		%\begin{minipage}{\linewidth}
+	  			\input{ejercicio7}
+	  		%\end{minipage}
+		  	\pagebreak
+	\section{Preguntas}
+	  	\input{preguntas}
+\end{document}

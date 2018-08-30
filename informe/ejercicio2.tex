@@ -1,0 +1,13 @@
+\subsubsection*{Punto a}
+Lo que debiamos hacer en este ejercicio, era completar las primeras 20 entradas de la idt, que se corresponden con las interrupciones que vienen especificadas por Intel.
+Para esto, utilizamos varias macros. En el archivo idt.c se invoca a la macro BOOST\_PP\_REPEAT, que lo que hace es invocar 20 veces a la macro IDT\_ENTRY, definida más arriba.\\
+
+En IDT\_ENTRY se indica como se completa una entrada de la IDT. En los campos $offset$ ponemos la dirección de memoria en donde se encuentra la rutina de atención de interrupcion correspondiente (\_isrX es el nombre de la rutina). En el campo $attr$ ponemos el valor $0x8E00$ que setea el bit $P$, pone $DPL$ en nivel 0, y setea el bit $D$. También setea otros bits que Intel requiere para que esta entrada sea considerada como una 'Interrupt Gate'. Por último seteamos el campo $segsel$ para que se utilice el segmento de Codigo de nivel 0.\\
+
+Las rutinas \_isrX se definen en el archivo isr.asm. Una rutina se define con la macro ISR. A su vez, esta macro se llama 20 veces desde un loop del nasm, cuyo código esta justo debajo de la macro ISR. 
+En la macro ISR, está comentada la línea que imprimía por pantalla la excepción que lanzó la interrupción, como se pedía en este ejercicio. En la línea comentada se ve que se llama a la macro provista por la cátedra, 'IMPRIMIR\_TEXTO'. Como parámetros le pasabamos el mensaje, la longitud, color, linea y columna. El mensaje y la longitud se definen en el archivo 'mensajesInt.mac' mediante otra macro 'MENSAJE'.
+
+\subsubsection*{Punto b}
+Para que el procesador utilice la IDT, invocamos, desde kernel.asm, a la función inicializar\_idt. La misma esta definida en idt.h e implementada en idt.c. Dentro de esta función está el código comentado en el punto anterior. Luego, ejecutamos la instrucción 'lidt [IDT\_DESC]' que carga la variable IDT\_DESC en el registro 'IDTR'. Lo que se carga, es el puntero al vector de rutinas de atención de interrupcines y el tamaño de este vector, tal cual lo requiere el formato del registro.
+La variable IDT\_DESC está definida al final de idt.c\\
+Para probar el funcionamiento de interrupciones, tenemos comentado el código del ejercicio 1, que lanza una excepción. Además se tenía un 'sti' que se movió para ser ejecutado luego de activar el pic.

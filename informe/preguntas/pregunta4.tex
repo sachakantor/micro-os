@@ -1,0 +1,26 @@
+Cuándo se arroja una excepción en nivel 3, la pila se encuentra con la información del programa al momento de terminar la ejecución. Esto es, con los registros de segmento de código y stack que se estaban utilizando, el EIP de la instrucción que se estaba ejecutando, el ESP que apunta a la pila de nivel 3, los EFLAGS y el ERRORCODE que indica que tipo de interrupción se produjo.
+\begin{center}
+  \begin{tabular*}{200mm}{l|c|}
+  & \rule[0.25cm]{80mm}{0.01cm}\\
+  esp & ERRORCODE\\
+  esp + 4 & EIP(Previo a la interrupción)\\
+  esp + 8 & CS\\
+  esp + 12 & EFLAGS\\
+  esp + 16 & ESP(Previo a la interrupción)\\
+  esp + 20 & SS\\
+  & \rule[-0.2cm]{80mm}{0.01cm}\\
+  \end{tabular*}
+\end{center}
+
+En el caso de la excepción en nivel 0, el estado de la pila es similar, pero se evita guardar los registros que apuntan a la pila (SS y ESP) ya que al no haber cambio de nivel de privilegio, estos siguen siendo iguales.
+
+\begin{center}
+  \begin{tabular*}{200mm}{l|c|}
+  & \rule[0.25cm]{80mm}{0.01cm}\\
+  esp & ERRORCODE\\
+  esp + 4 & EIP(Previo a la interrupción)\\
+  esp + 8 & CS\\
+  esp + 12 & EFLAGS\\
+  & \rule[-0.2cm]{80mm}{0.01cm}\\
+  \end{tabular*}
+\end{center}

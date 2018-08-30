@@ -1,0 +1,4 @@
+El directorio de páginas es accedido mediante el registro CR3 que tiene la dirección base del mismo. La restricción con respecto a la ubicación del directorio está relacionada con esto mismo.\\
+Para acceder al directorio el procesador asume que el mismo está alineado a 4K, es decir, que está ubicado en una página y por lo tanto agrega 12 ceros a la derecha de la dirección que esté almacenada en el CR3 para obtener la dirección física final.\\
+
+Esto implica que el directorio no puede estar almacenado en cualquier posición de memoria. Únicamente puede ubicarse en posiciones de memoria alineadas a 4K.

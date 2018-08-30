@@ -1,0 +1,4 @@
+Sí, se puede. Para lograrlo, se puede setear una entrada de la Tabla de Páginas con la misma dirección que la entrada anterior, y con el bit u/s en 1, suponiendo que la anterior tiene el bit u/s en 0.
+% (Lo probé con set tbl entry((tbl entry*) PTK,(TBL COUNT/2) -1,1,1,1,0,0,0,0,0,0,(unsigned int)(TBL COUNT/2) -2);, que setea la ultima pagina de los 2 mb del kernel a la anteultima pagina fisica.)
+ %
+El problema que puede traer esto es que un programa puede modificar una posición de memoria que el sistema también utiliza. Dependiendo de para que la utilice el sistema, varían los problemas posibles. Por ejemplo si allí se guarda la idt, podría dejar de atenderse una interrupción.

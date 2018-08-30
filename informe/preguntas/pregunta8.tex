@@ -1,0 +1,3 @@
+Ambas entradas, las de directorio de páginas y de tablas, pueden tener permisos de Sistema o de Usuario segun el bit u/s, y permisos de Lectura o Lectura-Escritura según el bit r/w.
+
+Una dirección de memoria tiene permiso de lectura/escritura, si ambas entradas, la de directorio y la de tablas, tienen dicho bit seteado. De lo contrario, es de solo lectura. Por otro lado, puede ser utilizada por tareas que corren en nivel usuario, solamente si, nuevamente, ambas entradas tienen el bit u/s seteado. De otra forma, solo será accesible para tareas de nivel 0.

@@ -1,0 +1,32 @@
+;Macro para los mensajes
+;	Parametros:
+;			%1		Numero de Interrupcion
+;			%2		Mensaje
+%macro MENSAJE 2 ; numero de int y mensaje (entre comillas)
+	int%1: db %2,0
+	int%1_len equ $ - int%1 -1
+%endmacro
+
+; Mensajes
+MENSAJE 0, 'INT 0: Divide Error (Div or IDIV instructions)'
+MENSAJE 1, 'INT 1: RESERVED'
+MENSAJE 2, 'INT 2: NMI Interrupt'
+MENSAJE 3, 'INT 3: Breakpoint'
+MENSAJE 4, 'INT 4: Overflow'
+MENSAJE 5, 'INT 5: BOUND Range Eceeded'
+MENSAJE 6, 'INT 6: Invalid Opcode'
+MENSAJE 7, 'INT 7: Device Not Available'
+MENSAJE 8, 'INT 8: Double Fault'
+MENSAJE 9, 'INT 9: Coprocessor Segment Overrun (reserved)'
+MENSAJE 10, 'INT 10: Invalid TSS'
+MENSAJE 11, 'INT 11: Segment Not Present'
+MENSAJE 12, 'INT 12: Stack Segment Fault'
+MENSAJE 13, 'INT 13: General Protection Interruption'
+MENSAJE 14, 'INT 14: Page Fault'
+MENSAJE 15, 'INT 15: Reserved'
+MENSAJE 16, 'INT 16: x87 FPU Floating-Point Error'
+MENSAJE 17, 'INT 17: Alignment Check'
+MENSAJE 18, 'INT 18: Machine Check'
+MENSAJE 19, 'INT 19: SIMD Floating Point Exception'
+MENSAJE 69, 'INT 69: Servicio del OS no valido'
+MENSAJE 70, 'INT 70: Indice a mapear en la arena NO valido'

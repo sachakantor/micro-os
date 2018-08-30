@@ -1,0 +1,25 @@
+Primero vamos a explicar el comportamiento de las funciones \textit{mapear\_pagina} y \textit{unmapear\_pagina}.\\
+Mapear una dirección virtual a una física quiere decir poner las entradas del directorio y de las tablas de páginas de determinada manera para que al intentar acceder a una dirección virtual x se llegue a la dirección fisica especificada.\\
+Para hacer esto debemos recordar que significa la dirección virtual. La misma está compuesta de la siguiente manera:
+\\ \\\
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Índice del directorio} & \textbf{Índice de la tabla de página} & \textbf{Offset dentro de la página}\\
+\hline
+\end{tabular}
+\\ \\\
+La unidad de paginación busca la base del directorio en el CR3, luego busca la base de la tabla de página en la entrada especificada por el \textbf{Índice del directorio}, luego busca la base de la página especificada por la entrada \textbf{Índice de la tabla de página} y por último le suma el \textbf{Offset} y asi accede al byte requerido.\\
+Lo que nosotros hacemos es justamente setear todo el camino que hace la unidad, con entradas presentes y que apunten a donde deben, para que finalmente la base que encuentre en la tabla de páginas sea tal que sumada con el offset de la dirección física que nos pidieron.\\\ \\
+
+En otras palabras, primero con el CR3 buscamos la base del directorio, luego vamos a la entrada especificada y obtenemos la tabla de páginas que nos indica dicha entrada. Luego con la tabla de páginas vamos a la entrada especificada por la dirección virtual y le cambiamos la base a la primera dirección física menor alineada a 4KB (o sea comienzo de página).\\\ \\
+Para unmapear una página lo que hacemos es lo mismo, pero en vez de cambiar la base de la entrada de la tabla de páginas, simplemente ponemos que esa entrada ya no está presente en la memoria.\\
+\\
+Nota: No necesitamos invocar a la función tlbflush dentro de las funciones 'unmapearpagina' y 'mapearpagina', ya que cuando una tarea pide mapear una página, despues de hacerlo se le sede el quantum que quede a la tarea Idle, con lo que no intentará acceder a dicha página de momento. Y cuando la tarea que pidió la página, es puesta a correr nuevamente, previamente tuvo que haber habido un cambio de contexto, y cuando lo hay, el procesador limpia el buffer de tlb.
+\\ \\\
+Ya habiendo explicado como mapear páginas, veamos como funciona \textit{inicializar\_dir\_tarea}. La idea de esta función es incializar los directorios y tablas de páginas de todas las tareas, luego copiamos el código y la pila de cada tarea a la arena y por último mapeamos su código y pila a unas direcciones virtuales identicas para cada tarea.\\
+\\
+Analizando las direcciones que iban a ser accedidas por las tareas nos dimos cuenta que se necesita hacer identity mapping sobre los primeros 2MB con privilegio de sistema ya que solamente queremos que el kernel pueda acceder en caso de que ocurra una interrupción. Y después el resto debe estar no presente.\\
+Para hacer esto hacemos identity mapping de manera similar al ejercicio anterior.\\
+Luego mapeamos por cada tarea, la dirección virtual 0x3A0000 a la dirección física dónde va a copiarse el código de la tarea dentro de la arena y la dirección virtual 0x3B0000 a la dirección física dónde estará la pila. Esto lo hacemos utilizando la función \textit{mapear\_pagina} mencionada previamente.\\
+
+Lo siguiente que hacemos es actualizar la pantalla mostrando dónde están las páginas de código y pila de las tareas en la arena llamando a la función \textit{pintar\_posicion\_arena}. Por último copiamos todas las tareas (código y pila) de sus posiciones inciales dentro de los primeros 2MB a las posiciones generadas en el archivo \textit{rand.c} dentro de la arena.
